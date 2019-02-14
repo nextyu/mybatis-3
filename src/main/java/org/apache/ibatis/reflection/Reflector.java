@@ -121,6 +121,7 @@ public class Reflector {
           }
         } else if (candidateType.isAssignableFrom(winnerType)) {
           // OK getter type is descendant
+          // 判断 candidateType 是不是 winnerType 的子类或者子接口
         } else if (winnerType.isAssignableFrom(candidateType)) {
           winner = candidate;
         } else {
