@@ -1,6 +1,7 @@
 package com.nextyu.mybatis;
 
 import org.apache.ibatis.parsing.PropertyParser;
+import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -32,5 +33,11 @@ public class MyTest {
         System.out.println(map.get("name"));
         System.out.println(map.get("age"));
 
+    }
+
+    @Test
+    public void propertyTokenizer() {
+        String str = "orders[0].items[0].name";
+        PropertyTokenizer propertyTokenizer = new PropertyTokenizer(str);
     }
 }

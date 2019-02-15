@@ -39,6 +39,9 @@ import org.apache.ibatis.reflection.invoker.SetFieldInvoker;
 import org.apache.ibatis.reflection.property.PropertyNamer;
 
 /**
+ *
+ * 每个 Reflector 对象都对应一个类
+ *
  * This class represents a cached set of class definition information that
  * allows for easy mapping between property names and getter/setter methods.
  *
@@ -46,16 +49,16 @@ import org.apache.ibatis.reflection.property.PropertyNamer;
  */
 public class Reflector {
 
-  private final Class<?> type;
-  private final String[] readablePropertyNames;
-  private final String[] writeablePropertyNames;
-  private final Map<String, Invoker> setMethods = new HashMap<>();
-  private final Map<String, Invoker> getMethods = new HashMap<>();
-  private final Map<String, Class<?>> setTypes = new HashMap<>();
-  private final Map<String, Class<?>> getTypes = new HashMap<>();
-  private Constructor<?> defaultConstructor;
+  private final Class<?> type; // 对应的 Class 类型
+  private final String[] readablePropertyNames; // 可读属性的名称集合，可读属性就是存在相应 getter 方法的属性，初始值为空数纽
+  private final String[] writeablePropertyNames; // 可写属性的名称集合，可写属性就是存在相应 setter 方法的属性，初始值为空数纽
+  private final Map<String, Invoker> setMethods = new HashMap<>(); // 记录了属性相应 的 setter 方法 ， key 是属性名称， value 是 Invoker 对象，它是对 setter 方法对应 Method 对象的封装
+  private final Map<String, Invoker> getMethods = new HashMap<>(); // 属性相应 的 getter 方法集合 ， key 是属性名称， value 也是 Invoker 对象
+  private final Map<String, Class<?>> setTypes = new HashMap<>(); // 记录了属性相应的 setter 方法的参数值类型， ke y 是属性名称， value 是 setter 方法的参数类型
+  private final Map<String, Class<?>> getTypes = new HashMap<>(); // 记录了属性相应的 getter 方法的返回位类型， key 是属性名称， value 是 getter 方法的返回位类型
+  private Constructor<?> defaultConstructor; // 记录了默认构造方法
 
-  private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
+  private Map<String, String> caseInsensitivePropertyMap = new HashMap<>(); // 记录了所有属性名 称的 集合
 
   public Reflector(Class<?> clazz) {
     type = clazz;
