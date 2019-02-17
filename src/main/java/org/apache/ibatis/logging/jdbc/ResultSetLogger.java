@@ -37,11 +37,12 @@ import org.apache.ibatis.reflection.ExceptionUtil;
  */
 public final class ResultSetLogger extends BaseJdbcLogger implements InvocationHandler {
 
+  // 记录了超大长度的类型
   private static Set<Integer> BLOB_TYPES = new HashSet<>();
-  private boolean first = true;
-  private int rows;
-  private final ResultSet rs;
-  private final Set<Integer> blobColumns = new HashSet<>();
+  private boolean first = true; // 是否是 ResultSet 结果集的第一行
+  private int rows; // 统计行数
+  private final ResultSet rs; // 真正的 ResultSet 对象
+  private final Set<Integer> blobColumns = new HashSet<>(); // 记录了起大字段的列编号
 
   static {
     BLOB_TYPES.add(Types.BINARY);
@@ -66,22 +67,25 @@ public final class ResultSetLogger extends BaseJdbcLogger implements InvocationH
         return method.invoke(this, params);
       }
       Object o = method.invoke(rs, params);
-      if ("next".equals(method.getName())) {
+      if ("next".equals(method.getName())) { // 针对 ResultSet.next（）方法的处理
         if ((Boolean) o) {
           rows++;
           if (isTraceEnabled()) {
             ResultSetMetaData rsmd = rs.getMetaData();
-            final int columnCount = rsmd.getColumnCount();
-            if (first) {
+            final int columnCount = rsmd.getColumnCount(); // 获取数据集的列数
+            if (first) { // 如采是第一行数据 ，则输出表头
               first = false;
+              // 除了输出表头， 还会填充 blobColumns 集合，记录超大类型的列
               printColumnHeaders(rsmd, columnCount);
             }
             printColumnValues(columnCount);
           }
         } else {
+          // 边历完 ResultSet 之后 ，会输出总数
           debug("     Total: " + rows, false);
         }
       }
+      // 清空 BaseJdbcLogger 中的 column ＊集合
       clearColumnInfo();
       return o;
     } catch (Throwable t) {

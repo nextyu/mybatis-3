@@ -33,6 +33,10 @@ import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.io.Resources;
 
 /**
+ *
+ * 在编写 SQL 语句时， 使用别名可以方便理解 以及维护， 例如表名 或列名很长时， 我们一般 会为其设计易懂易维护 的别名。
+ * MyBatis 将 SQL 语句中别名的概念进行了延伸 和扩展 ， My Batis 可以为一个类添加一个别名， 之后就可以通过别名引用该类。
+ *
  * @author Clinton Begin
  */
 public class TypeAliasRegistry {
@@ -125,6 +129,7 @@ public class TypeAliasRegistry {
     registerAliases(packageName, Object.class);
   }
 
+  // 扫描指定包下所有的类， 并为指定类的子类添加别名
   public void registerAliases(String packageName, Class<?> superType) {
     ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
     resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
@@ -139,7 +144,9 @@ public class TypeAliasRegistry {
   }
 
   public void registerAlias(Class<?> type) {
+    // 类的简单名称（不包含包名）
     String alias = type.getSimpleName();
+    // 读取＠Alias i主解
     Alias aliasAnnotation = type.getAnnotation(Alias.class);
     if (aliasAnnotation != null) {
       alias = aliasAnnotation.value();
@@ -152,7 +159,7 @@ public class TypeAliasRegistry {
       throw new TypeException("The parameter alias cannot be null");
     }
     // issue #748
-    String key = alias.toLowerCase(Locale.ENGLISH);
+    String key = alias.toLowerCase(Locale.ENGLISH); // 将别名转换为小写
     if (TYPE_ALIASES.containsKey(key) && TYPE_ALIASES.get(key) != null && !TYPE_ALIASES.get(key).equals(value)) {
       throw new TypeException("The alias '" + alias + "' is already mapped to the value '" + TYPE_ALIASES.get(key).getName() + "'.");
     }
