@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import org.apache.ibatis.reflection.ExceptionUtil;
 
 /**
+ * PooledConnection 中封装了真正的数据库连接对象（java.sql.Connection ）以及其代理对
+ * 象，这里的代理对象是通过 JDK 动态代理产生的
  * @author Clinton Begin
  */
 class PooledConnection implements InvocationHandler {
@@ -32,14 +34,14 @@ class PooledConnection implements InvocationHandler {
   private static final Class<?>[] IFACES = new Class<?>[] { Connection.class };
 
   private final int hashCode;
-  private final PooledDataSource dataSource;
-  private final Connection realConnection;
-  private final Connection proxyConnection;
-  private long checkoutTimestamp;
-  private long createdTimestamp;
-  private long lastUsedTimestamp;
-  private int connectionTypeCode;
-  private boolean valid;
+  private final PooledDataSource dataSource; // 记录当前 PooledConnection 对象所在的 PooledDataSource 对象 。 该 PooledConnection 是从该 Poole dDataSour ce 中获取的；当调用 close （）方法时会将 PooledConnection 放回该 PooledDataSource 中
+  private final Connection realConnection; // 真正的数据库连接
+  private final Connection proxyConnection; // 数据库连接的代理对象
+  private long checkoutTimestamp; // 从连接池中取出该连接的时间戳
+  private long createdTimestamp; // 该连接创建的时间戳
+  private long lastUsedTimestamp; // 最后一次被使用的时间戳
+  private int connectionTypeCode; // 由数据库 URL 、用户名和密码计算出来的 hash 值，可用于标识该连接所在的连接池
+  private boolean valid; // 检测当前 PooledConnection 是否有效，主要是为了防止程序通过 close （）方法将连接归还给连接池之后，依然通过该连接操作数据库
 
   /**
    * Constructor for SimplePooledConnection that uses the Connection and PooledDataSource passed in.
@@ -233,6 +235,7 @@ class PooledConnection implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     String methodName = method.getName();
     if (CLOSE.hashCode() == methodName.hashCode() && CLOSE.equals(methodName)) {
+      // 如果调用 close （）方法，则将其重新放入连接池，而不是真正关闭数据库连接
       dataSource.pushConnection(this);
       return null;
     }
@@ -240,8 +243,10 @@ class PooledConnection implements InvocationHandler {
       if (!Object.class.equals(method.getDeclaringClass())) {
         // issue #579 toString() should never fail
         // throw an SQLException instead of a Runtime
+        // 通过 valid 字段检测连接是否有效
         checkConnection();
       }
+      // 调用真正数据库连接对象的对应方法
       return method.invoke(realConnection, args);
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
