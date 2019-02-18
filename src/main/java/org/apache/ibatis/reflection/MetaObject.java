@@ -32,10 +32,19 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
  */
 public class MetaObject {
 
+  // 原始 JavaBean 对象
   private final Object originalObject;
+
+  // 上文介绍的 ObjectWrapper 对象，其中封装了 originalObject 对象
   private final ObjectWrapper objectWrapper;
+
+  // 负责实例化 originalObject 的 工厂对象
   private final ObjectFactory objectFactory;
+
+  // 负责创建 ObjectWrapper 的工厂对象
   private final ObjectWrapperFactory objectWrapperFactory;
+
+  // 用于创建并缓存 Reflector 对象的工厂对象
   private final ReflectorFactory reflectorFactory;
 
   private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
@@ -59,6 +68,7 @@ public class MetaObject {
 
   public static MetaObject forObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
     if (object == null) {
+      // 若 object 为 null ，则统一返回 SystemMetaObject.NULL_META_OBJECT 这个标志对象
       return SystemMetaObject.NULL_META_OBJECT;
     } else {
       return new MetaObject(object, objectFactory, objectWrapperFactory, reflectorFactory);

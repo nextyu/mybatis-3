@@ -58,7 +58,7 @@ public class Reflector {
   private final Map<String, Class<?>> getTypes = new HashMap<>(); // 记录了属性相应的 getter 方法的返回位类型， key 是属性名称， value 是 getter 方法的返回位类型
   private Constructor<?> defaultConstructor; // 记录了默认构造方法
 
-  private Map<String, String> caseInsensitivePropertyMap = new HashMap<>(); // 记录了所有属性名 称的 集合
+  private Map<String, String> caseInsensitivePropertyMap = new HashMap<>(); // 记录了所有属性名称的集合
 
   public Reflector(Class<?> clazz) {
     type = clazz;
