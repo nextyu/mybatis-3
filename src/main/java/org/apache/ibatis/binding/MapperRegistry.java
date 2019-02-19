@@ -33,7 +33,9 @@ import org.apache.ibatis.session.SqlSession;
  */
 public class MapperRegistry {
 
+  // Configuration 对象， MyBatis 全局唯一的配置对象， 其中包含了所有配置信息
   private final Configuration config;
+  // 记录了 Mapper 接口与对应 MapperProxyFactory 之间的关系
   private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap<>();
 
   public MapperRegistry(Configuration config) {
@@ -47,6 +49,7 @@ public class MapperRegistry {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
     try {
+      // 创建实现了 type 接口的代理对象
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {
       throw new BindingException("Error getting mapper instance. Cause: " + e, e);
@@ -57,6 +60,11 @@ public class MapperRegistry {
     return knownMappers.containsKey(type);
   }
 
+  /*
+  在 MyBatis 初始化过程中会读取映射配置 文件以及 Mapper 接 口中 的注解信息 ，并调用 Mapper Regis町.addMapperO方法
+  填充 M叩perRegistry.knownMappers 集合 ， 该集合的 key 是 Mapper 接口对应的 Class 对象， value 为 MapperProxyFactory 工厂对象，
+   可以为 Mapper 接口创 建代理对象
+   */
   public <T> void addMapper(Class<T> type) {
     if (type.isInterface()) {
       if (hasMapper(type)) {
@@ -64,6 +72,7 @@ public class MapperRegistry {
       }
       boolean loadCompleted = false;
       try {
+        // 将 Mapper 接口对应的 Class 对象和 MapperProxyFactory 对象添加到 knownMappers 集合
         knownMappers.put(type, new MapperProxyFactory<>(type));
         // It's important that the type is added before the parser is run
         // otherwise the binding may automatically be attempted by the

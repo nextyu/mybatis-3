@@ -28,6 +28,8 @@ import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 
 /**
+ *
+ * VFS 表示虚拟文件系统 （ Virtual File System ） ， 它用来查找指定路径下的资源。
  * Provides a very simple API for accessing resources within an application server.
  *
  * @author Ben Gunter
@@ -35,23 +37,28 @@ import org.apache.ibatis.logging.LogFactory;
 public abstract class VFS {
   private static final Log log = LogFactory.getLog(VFS.class);
 
+  // 记录 了 MyBatis 提供的两个 VFS 实现类
   /** The built-in implementations. */
   public static final Class<?>[] IMPLEMENTATIONS = { JBoss6VFS.class, DefaultVFS.class };
 
+  // 记录 了 用户自定义的 VFS 实现类
   /** The list to which implementations are added by {@link #addImplClass(Class)}. */
   public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<>();
 
   /** Singleton instance holder. */
   private static class VFSHolder {
+    // 羊例模式， 记录 了 全局唯一的 VFS 对象
     static final VFS INSTANCE = createVFS();
 
     @SuppressWarnings("unchecked")
     static VFS createVFS() {
+      // 优先使用用户自 定义的 VFS 实现，如采没有 自定义 VFS 实现，则使用 MyBatis 提供的 VFS 实现
       // Try the user implementations first, then the built-ins
       List<Class<? extends VFS>> impls = new ArrayList<>();
       impls.addAll(USER_IMPLEMENTATIONS);
       impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
+      // 造历 impls 集合，依次实例化 VFS 对象并检测 VFS 对象是否有效， 一旦得到有效的 VFS 对象，则 结束循环
       // Try each implementation class until a valid one is found
       VFS vfs = null;
       for (int i = 0; vfs == null || !vfs.isValid(); i++) {

@@ -56,6 +56,7 @@ public class DefaultVFS extends VFS {
     try {
       List<String> resources = new ArrayList<>();
 
+      // 如果 url 指向的资源在一个 Jar 包中，则获取该 Jar 包对应 的 URL ，否则返回 null
       // First, try to find the URL of a JAR file containing the requested resource. If a JAR
       // file is found, then we'll list child resources by reading the JAR.
       URL jarUrl = findJarForResource(url);
@@ -64,6 +65,7 @@ public class DefaultVFS extends VFS {
         if (log.isDebugEnabled()) {
           log.debug("Listing " + url);
         }
+        // 边历 Jar 中的 资源 ，并返回以 path 开头的资源列表
         resources = listResources(new JarInputStream(is), path);
       }
       else {

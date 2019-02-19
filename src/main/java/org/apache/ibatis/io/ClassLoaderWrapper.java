@@ -25,11 +25,12 @@ import java.net.URL;
  */
 public class ClassLoaderWrapper {
 
-  ClassLoader defaultClassLoader;
+  ClassLoader defaultClassLoader; // 应用指定的默认类加载器
   ClassLoader systemClassLoader;
 
   ClassLoaderWrapper() {
     try {
+      // 初始化 systemClassLoader 字段
       systemClassLoader = ClassLoader.getSystemClassLoader();
     } catch (SecurityException ignored) {
       // AccessControlException on Google App Engine
@@ -201,13 +202,14 @@ public class ClassLoaderWrapper {
 
   }
 
+  // 返回 ClassLoader[] 数组， 该数组指明了类加载器的使用顺序
   ClassLoader[] getClassLoaders(ClassLoader classLoader) {
     return new ClassLoader[]{
-        classLoader,
-        defaultClassLoader,
-        Thread.currentThread().getContextClassLoader(),
-        getClass().getClassLoader(),
-        systemClassLoader};
+        classLoader, // 参数指定的类加载器
+        defaultClassLoader, // 系统指定的默认类加载器
+        Thread.currentThread().getContextClassLoader(), // 当前线程绑定的类加载器
+        getClass().getClassLoader(), // 加载当前类所使用的类加载器
+        systemClassLoader}; // System ClassLoader
   }
 
 }

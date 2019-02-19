@@ -33,8 +33,11 @@ import org.apache.ibatis.session.SqlSession;
 public class MapperProxy<T> implements InvocationHandler, Serializable {
 
   private static final long serialVersionUID = -6424540398559729838L;
-  private final SqlSession sqlSession;
-  private final Class<T> mapperInterface;
+  private final SqlSession sqlSession; // 关联的 SqlSession 对象
+  private final Class<T> mapperInterface; // Mapper 接 口 对应的 Class 对象
+  // 用于缓存 MapperMethod 对象， 其 中 key 是 Mapper 接 口中 方法对应 的 Method 对象，value 是对应 的 MapperMethod 对象
+  // MapperMethod 对象会完成参数转换以及 SQL 语句的执行功 能
+  // 需要注意的是， MapperMethod 中并不记录任何状态相关的信息， 所以 可以在多个代理对象之间共享
   private final Map<Method, MapperMethod> methodCache;
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethod> methodCache) {
@@ -47,14 +50,18 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
       if (Object.class.equals(method.getDeclaringClass())) {
+        // 如采目标方法继承自 Object ，则 直接调用目标方 法
         return method.invoke(this, args);
       } else if (isDefaultMethod(method)) {
+        // 针对 Java7 以上版本对动态类型语言的支持
         return invokeDefaultMethod(proxy, method, args);
       }
     } catch (Throwable t) {
       throw ExceptionUtil.unwrapThrowable(t);
     }
+    // 从缓存中获取 MapperMethod 对象， 如采缓存 中没有， 则创建新的 MapperMethod 对象并添加到缓存中
     final MapperMethod mapperMethod = cachedMapperMethod(method);
+    // 调用 MapperMethod.execute（）方法执行 SQL 语句
     return mapperMethod.execute(sqlSession, args);
   }
 

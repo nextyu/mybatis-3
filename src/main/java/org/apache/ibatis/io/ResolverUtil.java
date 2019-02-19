@@ -75,6 +75,7 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 用于检测类是否继承了指定的类或接口
    * A Test that checks to see if each class is assignable to the provided class. Note
    * that this test will match the parent type itself if it is presented for matching.
    */
@@ -99,6 +100,7 @@ public class ResolverUtil<T> {
   }
 
   /**
+   * 用于检测类是否添加了指定的注解
    * A Test that checks to see if each class is annotated with a specific annotation. If it
    * is, then the test returns true, otherwise false.
    */
@@ -214,9 +216,10 @@ public class ResolverUtil<T> {
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
   public ResolverUtil<T> find(Test test, String packageName) {
-    String path = getPackagePath(packageName);
+    String path = getPackagePath(packageName); // 根据包名获取其对应的路径
 
     try {
+      // 通过 VFS.list() 查找 packageName 包下的所有资源
       List<String> children = VFS.getInstance().list(path);
       for (String child : children) {
         if (child.endsWith(".class")) {
@@ -250,15 +253,16 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+      // fqn 是类的完全限定名， 即包括其所在包的包名
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
       ClassLoader loader = getClassLoader();
       if (log.isDebugEnabled()) {
         log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");
       }
 
-      Class<?> type = loader.loadClass(externalName);
-      if (test.matches(type)) {
-        matches.add((Class<T>) type);
+      Class<?> type = loader.loadClass(externalName); // 加载指定的类
+      if (test.matches(type)) { // 通过 Test.matches （）方法检测条件是否满足
+        matches.add((Class<T>) type); // 将符合条件的类记录到 matches 集合中
       }
     } catch (Throwable t) {
       log.warn("Could not examine class '" + fqn + "'" + " due to a " +
