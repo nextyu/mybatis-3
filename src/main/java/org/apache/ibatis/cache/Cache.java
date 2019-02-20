@@ -42,11 +42,14 @@ import java.util.concurrent.locks.ReadWriteLock;
 public interface Cache {
 
   /**
+   * 该缓存对象的id
    * @return The identifier of this cache
    */
   String getId();
 
   /**
+   * 向缓存中添加数据，一般情况下， key 是 CacheKey , value 是查询结果
+   *
    * @param key Can be any object but usually it is a {@link CacheKey}
    * @param value The result of a select.
    */
@@ -80,6 +83,9 @@ public interface Cache {
   void clear();
 
   /**
+   *
+   * ／缓存项的个数，该方法不会被 MyBatis 核心代码使用，所以可提供空实现
+   *
    * Optional. This method is not called by the core.
    *
    * @return The number of elements stored in the cache (not its capacity).
@@ -87,6 +93,9 @@ public interface Cache {
   int getSize();
 
   /**
+   *
+   * 获取读写锁，该方法不会被 MyBatis 核心代码使用，所以可提供空实现
+   *
    * Optional. As of 3.2.6 this method is no longer called by the core.
    * <p>
    * Any locking needed by the cache must be provided internally by the cache provider.
