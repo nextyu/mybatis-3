@@ -33,6 +33,11 @@ public class ParamNameResolver {
   private static final String GENERIC_NAME_PREFIX = "param";
 
   /**
+   *
+   * 记录了参数在参数列表中 的位置索 引与参数名称之间的对应关系，其中 key 表示参数在参数列表中的索引位置，
+   * va lue 表示参数名称 ，参数名称可以通过＠Param 注解指定，如果没有指定＠Param 注解，则使
+   * 用参数索寻｜作为其名称 。
+   *
    * <p>
    * The key is the index and the value is the name of the parameter.<br />
    * The name is obtained from {@link Param} if specified. When {@link Param} is not specified,
