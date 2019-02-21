@@ -29,8 +29,8 @@ import org.apache.ibatis.cache.Cache;
 public class FifoCache implements Cache {
 
   private final Cache delegate;
-  private final Deque<Object> keyList;
-  private int size;
+  private final Deque<Object> keyList; // 用于记录 key 进入缓存的先后顺序,使用的是 LinkedList<Object＞类型的集合对象
+  private int size; // 记录了缓存项 的上限，超过该值，则需要清理最老的缓存项
 
   public FifoCache(Cache delegate) {
     this.delegate = delegate;
@@ -81,7 +81,7 @@ public class FifoCache implements Cache {
 
   private void cycleKeyList(Object key) {
     keyList.addLast(key);
-    if (keyList.size() > size) {
+    if (keyList.size() > size) { // 如果达到缓存上限，则清理最老的缓存项
       Object oldestKey = keyList.removeFirst();
       delegate.removeObject(oldestKey);
     }
