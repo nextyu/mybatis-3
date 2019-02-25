@@ -18,6 +18,9 @@ package org.apache.ibatis.mapping;
 import java.sql.ResultSet;
 
 /**
+ *
+ * 枚举类型表示结果集类型
+ *
  * @author Clinton Begin
  */
 public enum ResultSetType {

@@ -90,14 +90,19 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // 判断是否已经加载过该映射文件
     if (!configuration.isResourceLoaded(resource)) {
-      configurationElement(parser.evalNode("/mapper"));
+      configurationElement(parser.evalNode("/mapper")); // 处理＜mapper＞节点
+      // 将 resource 添加到 Configuration.loadedResources 集合中保存，它是 HashSet<String> 类型的集合， 其中记录了已经加载过的映射文件
       configuration.addLoadedResource(resource);
-      bindMapperForNamespace();
+      bindMapperForNamespace(); // 注册 Mapper 接口
     }
 
+    // 处理 configurationElement（）方法 中 解析失败的＜ resultMap＞ 节点
     parsePendingResultMaps();
+    // 处理 configurationElement （）方法中 解析失败的＜cache-ref＞节点
     parsePendingCacheRefs();
+    // 处理 configurationElement （）方 法中 解析失败的 SQL 语句节点
     parsePendingStatements();
   }
 
@@ -107,16 +112,24 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void configurationElement(XNode context) {
     try {
+      // 获取＜mapper＞ 节 点 的 namespace 属性
       String namespace = context.getStringAttribute("namespace");
       if (namespace == null || namespace.equals("")) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
+      // 记录当前命名空间
       builderAssistant.setCurrentNamespace(namespace);
+      // 解析＜ cache - ref＞ 节 点
       cacheRefElement(context.evalNode("cache-ref"));
+      // 解析＜ cache ＞节点
       cacheElement(context.evalNode("cache"));
+      // 解析＜parameterMap＞节点（该节点 已废弃，不再推荐使用，不做详细介绍）
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
+      // 解析＜ resultMap＞节点
       resultMapElements(context.evalNodes("/mapper/resultMap"));
+      // 解析＜ sql ＞节点
       sqlElement(context.evalNodes("/mapper/sql"));
+      // 解析＜ select ＞、＜ insert＞、＜update＞、＜delete ＞等 SQL 节点
       buildStatementFromContext(context.evalNodes("select|insert|update|delete"));
     } catch (Exception e) {
       throw new BuilderException("Error parsing Mapper XML. The XML location is '" + resource + "'. Cause: " + e, e);
@@ -209,6 +222,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
       boolean blocking = context.getBooleanAttribute("blocking", false);
       Properties props = context.getChildrenAsProperties();
+      // 通过 MapperBuilderAssistant 创建 Cache 对象，并添加到 Configuration . caches 集合中保存
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);
     }
   }

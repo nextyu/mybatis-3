@@ -47,15 +47,18 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.type.JdbcType;
 
 /**
+ *
+ * 主要负责解析 mybatis-config.xml 配置文件
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
-  private boolean parsed;
-  private final XPathParser parser;
-  private String environment;
-  private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
+  private boolean parsed; // 标识是否已经解析过 mybatis-config.xml 配置丈件
+  private final XPathParser parser; // 用于解析 mybatis-config.xml 配置文件的 XPathParser 对象
+  private String environment; // 标识＜environment＞配置的名称， 默认读取＜environment ＞标签的 default 属性
+  private final ReflectorFactory localReflectorFactory = new DefaultReflectorFactory(); // ReflectorFactory 负责创建和缓存 Reflector 对象
 
   public XMLConfigBuilder(Reader reader) {
     this(reader, null, null);
@@ -95,6 +98,7 @@ public class XMLConfigBuilder extends BaseBuilder {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
+    // 在 mybatis-config.xml 配置文件中查找＜ configuration ＞节点，并开始解析
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
@@ -102,10 +106,13 @@ public class XMLConfigBuilder extends BaseBuilder {
   private void parseConfiguration(XNode root) {
     try {
       //issue #117 read properties first
+      // 解析＜properties＞节 点
       propertiesElement(root.evalNode("properties"));
+      // 解析＜settings＞节点
       Properties settings = settingsAsProperties(root.evalNode("settings"));
       loadCustomVfs(settings);
       loadCustomLogImpl(settings);
+      // 解析＜ typeAliases ＞节点
       typeAliasesElement(root.evalNode("typeAliases"));
       pluginElement(root.evalNode("plugins"));
       objectFactoryElement(root.evalNode("objectFactory"));
@@ -126,10 +133,13 @@ public class XMLConfigBuilder extends BaseBuilder {
     if (context == null) {
       return new Properties();
     }
+    // 解析＜ settings ＞的子节，占、（＜ setting＞标签）的 name 和 value 属性，并返回 Properties 对象
     Properties props = context.getChildrenAsProperties();
     // Check that all settings are known to the configuration class
+    // 创建 Configuration 对应的 MetaClass 对象
     MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
     for (Object key : props.keySet()) {
+      // 检测 Configuration 中是否定义了 key 指定属性相应的 setter 方法
       if (!metaConfig.hasSetter(String.valueOf(key))) {
         throw new BuilderException("The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
       }
@@ -220,21 +230,27 @@ public class XMLConfigBuilder extends BaseBuilder {
 
   private void propertiesElement(XNode context) throws Exception {
     if (context != null) {
+      // 解析＜properties ＞的子节点（＜property＞标签）的 name 和 value 属性，并记录到 Properties 中
       Properties defaults = context.getChildrenAsProperties();
+      // 解析＜properties ＞的 resource 和 url 属性， 这两个属性用于确定 properties 配置文件的位置
       String resource = context.getStringAttribute("resource");
       String url = context.getStringAttribute("url");
+      // resource 属性和 url 属性不能同时存在， 否则会抛出异常
       if (resource != null && url != null) {
         throw new BuilderException("The properties element cannot specify both a URL and a resource based property file reference.  Please specify one or the other.");
       }
+      // 加载 resource 属性或 url 属性指定的 properties 文件，使用到第 2 章 中介绍的 Resources 类
       if (resource != null) {
         defaults.putAll(Resources.getResourceAsProperties(resource));
       } else if (url != null) {
         defaults.putAll(Resources.getUrlAsProperties(url));
       }
+      // 与 Configuration 对象中 的 variables 集合合并
       Properties vars = configuration.getVariables();
       if (vars != null) {
         defaults.putAll(vars);
       }
+      // 更新 XPathParser 和 Configuration 的 variables 字段
       parser.setVariables(defaults);
       configuration.setVariables(defaults);
     }
