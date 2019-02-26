@@ -213,7 +213,9 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void cacheElement(XNode context) {
     if (context != null) {
+      // 获取＜ cache ＞节点的 (type ）属性，默认位是 PERPETUAL
       String type = context.getStringAttribute("type", "PERPETUAL");
+      // 查找 type 属性对应的 Cache 接 口 实现
       Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
       String eviction = context.getStringAttribute("eviction", "LRU");
       Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
@@ -221,6 +223,7 @@ public class XMLMapperBuilder extends BaseBuilder {
       Integer size = context.getIntAttribute("size");
       boolean readWrite = !context.getBooleanAttribute("readOnly", false);
       boolean blocking = context.getBooleanAttribute("blocking", false);
+      // 获取＜ cache＞节点下的子节点，将用于初始化二级缓存
       Properties props = context.getChildrenAsProperties();
       // 通过 MapperBuilderAssistant 创建 Cache 对象，并添加到 Configuration . caches 集合中保存
       builderAssistant.useNewCache(typeClass, evictionClass, flushInterval, size, readWrite, blocking, props);

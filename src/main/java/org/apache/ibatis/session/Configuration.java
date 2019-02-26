@@ -919,10 +919,12 @@ public class Configuration {
             + (conflictMessageProducer == null ? "" : conflictMessageProducer.apply(super.get(key), value)));
       }
       if (key.contains(".")) {
+        // 按照”·”将 key 切分成数组，并将数组的最后一项作为 shortKey
         final String shortKey = getShortName(key);
         if (super.get(shortKey) == null) {
-          super.put(shortKey, value);
+          super.put(shortKey, value); // 如果不包含指定 shortKey，则添加该键位对
         } else {
+         // 如果该 shortKey 已经存在， 则将 value 修改成 Ambiguity 对象
           super.put(shortKey, (V) new Ambiguity(shortKey));
         }
       }

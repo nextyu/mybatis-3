@@ -38,14 +38,14 @@ import org.apache.ibatis.reflection.SystemMetaObject;
  * @author Clinton Begin
  */
 public class CacheBuilder {
-  private final String id;
-  private Class<? extends Cache> implementation;
-  private final List<Class<? extends Cache>> decorators;
-  private Integer size;
-  private Long clearInterval;
-  private boolean readWrite;
-  private Properties properties;
-  private boolean blocking;
+  private final String id; // Cache 对象的唯一标识， 一般情况下对应映射文件中的配置 namespace
+  private Class<? extends Cache> implementation; // Cache 接口的真正实现类，默认位是前面介绍的 PerpetualCache
+  private final List<Class<? extends Cache>> decorators; // 装饰器集合，默认只包含 LruCache.class
+  private Integer size; // Cache 大小
+  private Long clearInterval; // 清理时间周期
+  private boolean readWrite; // 是否可读写
+  private Properties properties; // 其他配置信息
+  private boolean blocking; // 是否阻塞
 
   public CacheBuilder(String id) {
     this.id = id;
@@ -94,13 +94,16 @@ public class CacheBuilder {
     Cache cache = newBaseCacheInstance(implementation, id);
     setCacheProperties(cache);
     // issue #352, do not apply decorators to custom caches
+    // 检测 cache 对象的 类型，如果是 PerpetualCache 类型，则为其添加 decorators 集合中的装饰器 ； 如果是自定义类型的 Cache 接 口 实现，则不添加 decorators 集合中的装饰器
     if (PerpetualCache.class.equals(cache.getClass())) {
       for (Class<? extends Cache> decorator : decorators) {
-        cache = newCacheDecoratorInstance(decorator, cache);
-        setCacheProperties(cache);
+        cache = newCacheDecoratorInstance(decorator, cache); // 通过反射获取参数为 Cache 类型的构造方法，并通过该构造方法创建装饰器
+        setCacheProperties(cache); // 配置 cache 对象的属性
       }
+      // 添加 MyBatis 中提供的标准装饰器
       cache = setStandardDecorators(cache);
     } else if (!LoggingCache.class.isAssignableFrom(cache.getClass())) {
+      // 如果不是 LoggingCache 的子类，则添加 LoggingCache 装饰器
       cache = new LoggingCache(cache);
     }
     return cache;
@@ -176,6 +179,8 @@ public class CacheBuilder {
         }
       }
     }
+
+    // 如果 Cache 类继承了 InitializingObject 接口， 则调用其 initialize （） 方法继续自定义的初始化操作
     if (InitializingObject.class.isAssignableFrom(cache.getClass())) {
       try {
         ((InitializingObject) cache).initialize();
