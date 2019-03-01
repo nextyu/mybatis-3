@@ -26,12 +26,14 @@ import org.apache.ibatis.session.Configuration;
 public class ForEachSqlNode implements SqlNode {
   public static final String ITEM_PREFIX = "__frch_";
 
+  // 用于判断循环的终止条件，ForeachSqlNode 构造方法中会创建该对象
   private final ExpressionEvaluator evaluator;
-  private final String collectionExpression;
-  private final SqlNode contents;
-  private final String open;
-  private final String close;
-  private final String separator;
+  private final String collectionExpression; // 迭代的集合表达式
+  private final SqlNode contents; // 记录了该 ForeachSqlNode 节点的子节点
+  private final String open; // 在循环开始前要添加的字符串
+  private final String close; // 在循环结束后要添加的字符串
+  private final String separator; // 循环过程中， 每项之间的分隔符
+  // index 是当前迭代的次数，item 的值是本次选代的元素。 若迭代集合是 Map ，则 index 是键，item 是值
   private final String item;
   private final String index;
   private final Configuration configuration;
@@ -121,9 +123,9 @@ public class ForEachSqlNode implements SqlNode {
 
   private static class FilteredDynamicContext extends DynamicContext {
     private final DynamicContext delegate;
-    private final int index;
-    private final String itemIndex;
-    private final String item;
+    private final int index; // 对应集合项在集合中的索引位置
+    private final String itemIndex; // 对应集合项的index ，参见对 ForeachSqlNode.index 字段的介绍
+    private final String item; // 对应集合项的 item ，参见 ForeachSqlNode.item 字段的介绍
 
     public FilteredDynamicContext(Configuration configuration,DynamicContext delegate, String itemIndex, String item, int i) {
       super(configuration, null);
@@ -170,9 +172,9 @@ public class ForEachSqlNode implements SqlNode {
 
 
   private class PrefixedContext extends DynamicContext {
-    private final DynamicContext delegate;
-    private final String prefix;
-    private boolean prefixApplied;
+    private final DynamicContext delegate; // 底层封装的 DynamicContext 对象
+    private final String prefix; // 指定的前缀
+    private boolean prefixApplied; // 是否已经处理过前缀
 
     public PrefixedContext(DynamicContext delegate, String prefix) {
       super(configuration, null);
