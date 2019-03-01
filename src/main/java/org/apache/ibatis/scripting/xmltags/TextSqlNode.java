@@ -23,6 +23,9 @@ import org.apache.ibatis.scripting.ScriptingException;
 import org.apache.ibatis.type.SimpleTypeRegistry;
 
 /**
+ *
+ * 表示的是包含“$｛｝”占位符的动态 SQL 节点。
+ *
  * @author Clinton Begin
  */
 public class TextSqlNode implements SqlNode {
@@ -66,17 +69,20 @@ public class TextSqlNode implements SqlNode {
       this.injectionFilter = injectionFilter;
     }
 
+    // 它的主要功能是根据 DynamicContext.bindings 集合中的信息解析 SQL 语句节点中的“ $ ｛｝”占位符
     @Override
     public String handleToken(String content) {
+      // 获取用户提供的实参
       Object parameter = context.getBindings().get("_parameter");
       if (parameter == null) {
         context.getBindings().put("value", null);
       } else if (SimpleTypeRegistry.isSimpleType(parameter.getClass())) {
         context.getBindings().put("value", parameter);
       }
+      // 通过 OGNL 解析 content 的值
       Object value = OgnlCache.getValue(content, context.getBindings());
       String srtValue = value == null ? "" : String.valueOf(value); // issue #274 return "" instead of "null"
-      checkInjection(srtValue);
+      checkInjection(srtValue); // 检测合法性
       return srtValue;
     }
 

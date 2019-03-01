@@ -16,12 +16,15 @@
 package org.apache.ibatis.scripting.xmltags;
 
 /**
+ *
+ * 对应的动态 SQL 节点是＜If>节点
+ *
  * @author Clinton Begin
  */
 public class IfSqlNode implements SqlNode {
-  private final ExpressionEvaluator evaluator;
-  private final String test;
-  private final SqlNode contents;
+  private final ExpressionEvaluator evaluator; // ExpressionEvaluator 对象用于解析＜ if＞节点的 test 表达式的值
+  private final String test; // 记录了 ＜ if＞节点 中的 test 表达式
+  private final SqlNode contents; // 记录了＜ if＞节点的子节点
 
   public IfSqlNode(SqlNode contents, String test) {
     this.test = test;
@@ -31,11 +34,13 @@ public class IfSqlNode implements SqlNode {
 
   @Override
   public boolean apply(DynamicContext context) {
+    // 检测 test 属性中记录的表达式
     if (evaluator.evaluateBoolean(test, context.getBindings())) {
-      contents.apply(context);
+      contents.apply(context); // test 表达式为 true, 则执行子节点的 apply （）方法
       return true;
     }
     return false;
+    // 注意返回值 ，表示的是 test 表达式是否为 true
   }
 
 }

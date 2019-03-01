@@ -42,7 +42,9 @@ public final class OgnlCache {
 
   public static Object getValue(String expression, Object root) {
     try {
+      // 创建 OgnlContext 对象， OgnlClassResolver 替代了 OGNL 中原有的 DefaultClassResolver,其主要功能是使用前面介绍的 Resource 工具类定位资源
       Map context = Ognl.createDefaultContext(root, MEMBER_ACCESS, CLASS_RESOLVER, null);
+      // 使用 OGNL 执行 expression 表达式
       return Ognl.getValue(parseExpression(expression), context, root);
     } catch (OgnlException e) {
       throw new BuilderException("Error evaluating expression '" + expression + "'. Cause: " + e, e);
