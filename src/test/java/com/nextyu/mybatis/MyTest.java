@@ -4,9 +4,11 @@ import org.apache.ibatis.parsing.PropertyParser;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * @author zhouyu
@@ -39,5 +41,12 @@ public class MyTest {
     public void propertyTokenizer() {
         String str = "orders[0].items[0].name";
         PropertyTokenizer propertyTokenizer = new PropertyTokenizer(str);
+    }
+
+    @Test
+    public void tee() {
+        Integer maxNumber = Stream.of(1)
+                .max(Comparator.comparing(Integer::valueOf)).orElse(2);
+        System.out.println(maxNumber);
     }
 }

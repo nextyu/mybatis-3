@@ -36,6 +36,8 @@ import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
+ *
+ * Jdbc3 KeyGenerator 用于取回数据库生成的自增 id
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */

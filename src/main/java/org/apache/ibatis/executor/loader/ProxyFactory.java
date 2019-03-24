@@ -26,8 +26,10 @@ import org.apache.ibatis.session.Configuration;
  */
 public interface ProxyFactory {
 
+  // 根据配置初始化 ProxyFactory 对象， MyBatis 提供的两个子类中，该方法都是空实现
   void setProperties(Properties properties);
 
+  // 用于创建代理对象
   Object createProxy(Object target, ResultLoaderMap lazyLoader, Configuration configuration, ObjectFactory objectFactory, List<Class<?>> constructorArgTypes, List<Object> constructorArgs);
 
 }

@@ -26,6 +26,7 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.session.ResultHandler;
 
 /**
+ * StatementHandler 接口中的功能很多，例如创建 Statement 对象，为 SQL 语句绑定实参，执 行 select、 insert、 update、 delete 等多种类型的 SQL 语句，批量执行 SQL 语句，将结果集映射 成结果对象。
  * @author Clinton Begin
  */
 public interface StatementHandler {

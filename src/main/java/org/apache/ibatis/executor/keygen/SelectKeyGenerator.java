@@ -27,6 +27,8 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ *
+ * 对于不支持自动生成 自增主键的数据库， 例如 Oracle 数据库， 用户可以利用 MyBatis 提供 的 SelectkeyGenerator 来生成主键，
  * @author Clinton Begin
  * @author Jeff Butler
  */

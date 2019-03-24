@@ -45,10 +45,11 @@ public class Plugin implements InvocationHandler {
     Class<?> type = target.getClass();
     Class<?>[] interfaces = getAllInterfaces(type, signatureMap);
     if (interfaces.length > 0) {
+      // 使用 JDK 动态代理的方式创建代理对象
       return Proxy.newProxyInstance(
           type.getClassLoader(),
           interfaces,
-          new Plugin(target, interceptor, signatureMap));
+          new Plugin(target, interceptor, signatureMap)); // 这里使用 invocationHandler 对象就是 Plugin 对象
     }
     return target;
   }

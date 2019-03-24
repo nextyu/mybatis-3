@@ -77,7 +77,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private final MappedStatement mappedStatement;
   private final RowBounds rowBounds;
   private final ParameterHandler parameterHandler;
-  private final ResultHandler<?> resultHandler;
+  private final ResultHandler<?> resultHandler; // 用户指定用于处理结果集的 ResultHandler 对象
   private final BoundSql boundSql;
   private final TypeHandlerRegistry typeHandlerRegistry;
   private final ObjectFactory objectFactory;
@@ -180,10 +180,11 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   @Override
   public List<Object> handleResultSets(Statement stmt) throws SQLException {
     ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
-
+    // 该集合用于保存映射结果集得到的结果对象
     final List<Object> multipleResults = new ArrayList<>();
 
     int resultSetCount = 0;
+    // 获取第一个 ResultSet 对象，正如前面所说， 可能存在多个 ResultSet ，这里只获取第一个 ResultSet
     ResultSetWrapper rsw = getFirstResultSet(stmt);
 
     List<ResultMap> resultMaps = mappedStatement.getResultMaps();
