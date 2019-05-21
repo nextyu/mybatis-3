@@ -227,7 +227,7 @@ public class MapperMethod {
 
   public static class SqlCommand {
 
-    private final String name; // SQL 语句的名称
+    private final String name; // SQL 语句的名称 ${NAMESPACE_NAME}.${语句_ID}
     private final SqlCommandType type; // SQL 语句的类型
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
